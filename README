@@ -1,0 +1,8 @@
+This is the backend client used to make 'HangTheDJ' at Leeds hack this summer (2011). Hang the DJ was similar to Spartify (ie collaborative jukebox), but I never bothered to release it until now. http://leedshack.com/showcase/
+
+Split into backend branch:
+SpinaltapifyBackend
+And client branches:
+WebClient
+
+Only one client so far. I did make a qt based gui for it a while ago but was met by various problems as detailed in some post on the lib spotify getsatisfaction site somewhere. The plan was then to separate the audio playback process from the GUI to get around these issues but time seemed to slip away. I have now moved away from this idea and plan to make a client that uses html/js interface. In time I will work to add the original 'HangTheDJ' web app that allowed collab jukebox & some nice viz.
