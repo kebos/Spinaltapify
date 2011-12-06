@@ -1,0 +1,26 @@
+Spinaltapify
+----------------
+
+Features:
+Gapless, man!
+Really buggy, yeah!
+
+Crossplatform
+Dependencies: portaudio, boost & libspotify
+
+
+Build
+-------------
+To build linux:
+make clean
+make
+
+To build win32:
+Open solution (probably out of date & won't build, should be easy to fix up)
+
+
+Usage
+--------------
+./spty username password
+Use console to control (very confusing, read consoleui.cpp to clear things up)
+Use web browser (example client to talk to the web server in WebClient branch)
