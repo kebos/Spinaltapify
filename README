@@ -6,3 +6,8 @@ And client branches:
 WebClient
 
 Only one client so far. I did make a qt based gui for it a while ago but was met by various problems as detailed in some post on the lib spotify getsatisfaction site somewhere. The plan was then to separate the audio playback process from the GUI to get around these issues but time seemed to slip away. I have now moved away from this idea and plan to make a client that uses html/js interface. In time I will work to add the original 'HangTheDJ' web app that allowed collab jukebox & some nice viz.
+
+Here is a screen shot from the HangTheDJ jukebox app
+http://leedshack.com/wp-content/uploads/leedshack.com/2011/08/Screen-Shot-2011-08-08-at-13.21.24.png
+'HangTheDJ'
+http://leedshack.com/showcase/
