@@ -353,7 +353,13 @@ unsigned int spty_currentTrack(){
 	return currentTrack;
 }
 
+	void clearTracks();
 
+void spty_clearTracks(){
+	clearTracks();
+	spty_skipTrack();
+	spty_stop();
+}
 
 
 

@@ -7,6 +7,13 @@ unsigned int currentTrack = 0;
 boost::mutex mWaitForTrack;
 
 
+void clearTracks()
+{
+	currentTrack = 0;
+	uiQTracks = 0;
+	memset(gsPLTracks, 0, sizeof(gsPLTracks));
+	
+}
 
 bool spty_addTrack(sp_track * track){
 	sp_track_add_ref(track);

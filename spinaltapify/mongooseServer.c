@@ -77,7 +77,8 @@ static void *event_handler(enum mg_event event,
 	//spty_removeTrack(unsigned int position);
 	}
 	else if (!strcmp(request_info->uri,"/spty_clearTracks")){
-	//spty_clearTracks();
+		spty_clearTracks();
+		mg_printf(conn, "Success\n");
 	}
 	else if (!strcmp(request_info->uri,"/spty_setPlayList")){
 	//spty_setPlayList(unsigned int size, sp_track * tracks);
