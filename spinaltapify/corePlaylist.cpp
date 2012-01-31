@@ -15,7 +15,7 @@ void clearTracks()
 	
 }
 
-bool spty_addTrack(sp_track * track){
+unsigned int spty_addTrack(sp_track * track){
 	sp_track_add_ref(track);
 	DebugPC("Added a track %d tracks\n", uiQTracks+1);
 	gsPLTracks[uiQTracks] = track;
@@ -25,7 +25,7 @@ bool spty_addTrack(sp_track * track){
 	}else{
 		mWaitForTrack.unlock();
 	}
-	return true;
+	return uiQTracks-1;
 }
 
 bool backTrack(unsigned int num){

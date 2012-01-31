@@ -52,7 +52,7 @@ static void *event_handler(enum mg_event event,
 		mg_printf(conn, "Success\n");
 	}
 	else if (!strcmp(request_info->uri,"/spty_seek")){
-	spty_seek(1000);
+		spty_seek(1000);
 		mg_printf(conn, "Success\n");
 	}
 	else if (strstr(request_info->uri,"/spty_addTrack")){
@@ -70,8 +70,7 @@ static void *event_handler(enum mg_event event,
 		printf("Request url is %s\n", spotifyURL);
         	sp_link * spl = sp_link_create_from_string(spotifyURL);
         	sp_track * spt = sp_link_as_track(spl);
-        	spty_addTrack(spt);
-		mg_printf(conn, "Success\n");
+		mg_printf(conn, "Success%u\n", spty_addTrack(spt));
 	}
 	else if (!strcmp(request_info->uri,"/spty_removeTrack")){
 	//spty_removeTrack(unsigned int position);
