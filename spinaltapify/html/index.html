@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<style>
+		</style>
+		<meta charset="utf-8">
+		<title>SpinalTapify Gapless Preview!</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var spotSearchParameters = {
+				searchFilter : "",
+				artistFilter : "",
+				artistUrl : "",
+				albumFilter : "",
+				prevArtist : "",
+				prevAlbum : "",
+				prevSearch : ""
+			}
+			
+			var currentTrack = {
+				spotID : "",
+				artist : "",
+				album : "",
+				length : ""
+			}
+
+			var xmlreq = new Array();
+			var PlayListCount = 0;
+
+			function artistFilter() {
+				console.log("Val is " + document.spotArtistList.list.selectedIndex);
+				if(document.spotArtistList.list.selectedIndex > -1) {
+					console.log(document.spotArtistList.list.options[document.spotArtistList.list.selectedIndex].value);
+					if(document.spotArtistList.list.options[document.spotArtistList.list.selectedIndex].value != "false") {
+						spotSearchParameters.artistFilter = document.spotArtistList.list.options[document.spotArtistList.list.selectedIndex].text;
+					} else {
+						spotSearchParameters.artistFilter = "";
+					}
+					spotSearchParameters.artistUrl = document.spotArtistList.list.options[document.spotArtistList.list.selectedIndex].value;
+				}
+				
+				if(spotSearchParameters.artistUrl = document.spotArtistList.list.options[document.spotArtistList.list.selectedIndex].value == "") {
+					spotifySearchALL(true, true, true);
+				}else{
+					spotifySearchALL(false, true, true);	
+				}
+			}
+
+			function albumFilter() {
+				console.log("Val is " + document.spotAlbumList.list.selectedIndex);
+				if(document.spotAlbumList.list.selectedIndex > -1) {
+					spotSearchParameters.albumFilter = document.spotAlbumList.list.options[document.spotAlbumList.list.selectedIndex].value;
+				}
+				console.log(spotSearchParameters.albumFilter);
+				spotifySearchALL(false, true, true);
+			}
+
+			function ignoreReturn() {
+				return false;
+			}
+
+			function httpPostIgnore(strUrl) {
+				xmlhttpPost(strUrl, ignoreReturn);
+			}
+
+			function clearAndPlay(target) {
+				function playNext() {
+					var trackQ = target;
+					sptyAdd(trackQ);
+				}
+
+				xmlhttpPost("http://localhost:8081/spty_clearTracks", playNext);
+			}
+
+			function sptyAdd(target) {
+				xmlhttpPost("http://localhost:8081/spty_addTrack" + target, ignoreReturn);
+			}
+
+			function sptyAddPlaylist(target, updateFunction) {
+				xmlhttpPost("http://localhost:8081/spty_addTrack" + target, updateFunction);
+			}
+
+			function sptyQSelected() {
+				if(document.spotTrackList.list.selectedIndex > -1) {
+					console.log(document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].value);
+
+					var strDetails = document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].text;
+					function addToPlayList(id) {
+						id = 1;
+						// Unused at the moment
+						document.spotPlayList.list.options[PlayListCount++] = new Option(strDetails, id, true, false);
+					}
+
+					sptyAddPlaylist(document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].value, addToPlayList);
+				}
+			}
+
+			function sptyPlaySelected() {
+				if(document.spotTrackList.list.selectedIndex > -1) {
+					console.log(document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].value);
+					clearAndPlay(document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].value);
+				}
+			}
+
+			function xmlhttpPost(strURL, spty_update) {
+				var xmlHttpReq = false;
+				// Mozilla/Safari
+				if(window.XMLHttpRequest) {
+					xmlHttpReq = new XMLHttpRequest();
+				}
+				// IE
+				else if(window.ActiveXObject) {
+					xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlHttpReq.open('GET', strURL, true);
+				//console.log(strURL);
+				//console.log(spty_update);
+				xmlHttpReq.onreadystatechange = function() {
+					if(xmlHttpReq.readyState == 4) {
+						spty_update(xmlHttpReq.responseText);
+					}
+				};
+				xmlHttpReq.send("");
+				xmlreq.push(xmlHttpReq);
+			}
+
+			function spty_updateArtistResults(result) {
+				try {
+					var resultObj = JSON.parse(result);
+					//console.log(result);
+				} catch (e) {
+					console.log(e);
+				}
+				document.spotArtistList.list.options.length = 0;
+				document.spotArtistList.list.options[0] = new Option("All artists", false, false, false);
+				for(varr in resultObj.artists) {
+					var artistName = resultObj.artists[varr].name;
+					var artistHref = resultObj.artists[varr].href;
+					console.log(artistHref);
+					varr = parseInt(varr);
+					document.spotArtistList.list.options[varr + 1] = new Option(artistName, artistHref, false, false);
+				}
+			}
+
+			function spty_updateAlbumResults(result) {
+				try {
+					var resultObj = JSON.parse(result);
+					//console.log(result);
+				} catch (e) {
+					console.log(e);
+				}
+				document.spotAlbumList.list.options.length = 0;
+				document.spotAlbumList.list.options[0] = new Option("All albums", "", false, false);
+				for(varr in resultObj.albums) {
+					varr = parseInt(varr);
+					var artistName = resultObj.albums[varr].name + " - " + resultObj.albums[varr].artists[0].name;
+					var albumName = resultObj.albums[varr].href;
+					document.spotAlbumList.list.options[varr + 1] = new Option(artistName, albumName, false, false);
+				}
+			}
+
+			function spty_updateAlbumTrackResults(result) {
+				try {
+					var resultObj = JSON.parse(result);
+					//console.log(result);
+				} catch (e) {
+					console.log(e);
+				}
+				document.spotTrackList.list.options.length = 0;
+				var posCounter = 0;
+				for(varr in resultObj.album.tracks) {
+					var artistName = resultObj.album.tracks[varr].name + " - " + resultObj.album.tracks[varr].artists[0].name + " - " + resultObj.album.tracks[varr]["track-number"];
+					var spotifyUrl = resultObj.album.tracks[varr].href;
+					document.spotTrackList.list.options[posCounter] = new Option(artistName, spotifyUrl, false, false);
+					posCounter++;
+				}
+			}
+
+			function spty_updateTrackResults(result) {
+				try {
+					var resultObj = JSON.parse(result);
+					//console.log(result);
+				} catch (e) {
+					console.log(e);
+				}
+				document.spotTrackList.list.options.length = 0;
+				var posCounter = 0;
+
+				for(varr in resultObj.tracks) {
+					var artistName = resultObj.tracks[varr].name + " - " + resultObj.tracks[varr].artists[0].name + " - " + resultObj.tracks[varr].album.name + " - " + resultObj.tracks[varr]["track-number"];
+					var spotifyUrl = resultObj.tracks[varr].href;
+					var r = /GB/;
+					if(resultObj.tracks[varr].album.availability.territories.search(r) >= 0) {
+						if(spotSearchParameters.artistUrl) {
+							var found = false;
+							for(i in resultObj.tracks[varr].artists) {
+								if(resultObj.tracks[varr].artists[i].href == spotSearchParameters.artistUrl)
+									found = true;
+							}
+							if(!found){
+								console.log("No match!" + spotSearchParameters.artistUrl);
+								continue;
+							}
+						}
+					} else {
+						continue;
+					}
+
+					document.spotTrackList.list.options[posCounter] = new Option(artistName, spotifyUrl, false, false);
+					posCounter++;
+				}
+
+			}
+			
+			
+			function spotifyCurrTrackAndPos(){
+				function updateCurrTrckPos(returnStr){
+					//console.log("Update is!!!");
+					//console.log(returnStr);
+					var arrRet = returnStr.match(/([0-9]*)(spotify.*)/);
+					if (arrRet[1] == 0){
+						document.getElementById('currTrckPos').innerHTML = "0";
+						document.getElementById('currTrckName').innerHTML = "None";
+					}else{
+						document.getElementById('currTrckPos').innerHTML = arrRet[1] + " / " + currentTrack.length;
+						if (arrRet[2] == currentTrack.spotID){
+						}else{
+							document.getElementById('currTrckName').innerHTML = arrRet[1];
+							currentTrack.spotID = arrRet[2];
+							function updateTrckDets(details){
+								try {
+								var detailsObj = JSON.parse(details);
+								}catch (e){
+									console.log(e);
+								}
+								currentTrack.artist = detailsObj.track.artists[0].name; 
+								currentTrack.track = detailsObj.track.name;
+								currentTrack.album = detailsObj.track.album.name;
+								currentTrack.length = parseFloat(detailsObj.track.length *100000);
+								document.getElementById('currTrckName').innerHTML = "" + currentTrack.track + " - " + currentTrack.artist;
+							}
+							xmlhttpPost("http://ws.spotify.com/lookup/1/.json?uri=" + arrRet[2], updateTrckDets);
+						}
+					}
+					
+					
+				}
+				xmlhttpPost("http://localhost:8081/spty_getCurrentAndPos", updateCurrTrckPos);
+				
+			}
+
+			function spotifySearchALL(uArtist, uAlbum, uTrack) {
+				spotSearchParameters.searchFilter = document.forms[0].searchTerm.value;
+
+				var spotRequestUrlArtist = "http://ws.spotify.com/search/1/artist.json?q=";
+				var spotRequestUrlTrack = "http://ws.spotify.com/search/1/track.json?q=";
+				var spotRequestUrlAlbum = "http://ws.spotify.com/search/1/album.json?q=";
+
+				var spotRequestArtistAlbums;
+				var spotRequestAlbum = "http://ws.spotify.com/lookup/1/.json?uri=" + spotSearchParameters.albumFilter + "&extras=trackdetail";
+				spotRequestUrlArtist += document.forms[0].searchTerm.value;
+				spotRequestUrlTrack += document.forms[0].searchTerm.value;
+				spotRequestUrlAlbum += document.forms[0].searchTerm.value;
+
+				document.forms[1].searchArtistTerm.value = spotSearchParameters.artistFilter;
+				document.forms[2].searchAlbumTerm.value = spotSearchParameters.albumFilter;
+
+				if((spotSearchParameters.prevArtist == spotSearchParameters.artistFilter) && (spotSearchParameters.prevAlbum == spotSearchParameters.albumFilter) && spotSearchParameters.prevSearch == spotSearchParameters.searchFilter) {
+					uArtist = false;
+					uTrack = false;
+					uAlbum = false;
+				}
+
+				spotSearchParameters.prevArtist = spotSearchParameters.artistFilter;
+				spotSearchParameters.prevAlbum = spotSearchParameters.albumFilter;
+				spotSearchParameters.prevSearch = spotSearchParameters.searchFilter;
+
+				if(spotSearchParameters.albumFilter == "") {
+
+					if(spotSearchParameters.artistFilter) {
+						spotRequestUrlTrack += " artist:\"" + spotSearchParameters.artistFilter + "\"";
+						spotRequestUrlAlbum += " artist:\"" + spotSearchParameters.artistFilter + "\"";
+					}
+
+					if(spotSearchParameters.albumFilter) {
+						spotRequestUrlTrack += " album:\"" + spotSearchParameters.albumFilter + "\"";
+						spotRequestUrlAlbum += " album:\"" + spotSearchParameters.albumFilter + "\"";
+					}
+
+					try {
+						if(uArtist)
+							xmlhttpPost(spotRequestUrlArtist, spty_updateArtistResults);
+						if(uTrack)
+							xmlhttpPost(spotRequestUrlTrack, spty_updateTrackResults);
+						if(uAlbum)
+							xmlhttpPost(spotRequestUrlAlbum, spty_updateAlbumResults);
+					} catch (e) {
+						console.log(e);
+						return false;
+					}
+					return false;
+
+				} else {
+					if(uAlbum) {
+						console.log("HELLO FROM THE ALBUM" + spotSearchParameters.albumFilter);
+						xmlhttpPost(spotRequestAlbum, spty_updateAlbumTrackResults);
+					}
+
+				}
+
+				return false;
+			}
+
+			function test() {
+				spotifySearchALL(true, true, true);
+				spotifyCurrTrackAndPos();
+			}
+
+			function qToPlayListKey(e) {
+				if(e.keyCode == 13) {
+					sptyQSelected();
+				}
+			}
+
+			var intervalH = setInterval(test, 500);
+
+		</script>
+		<h1>SpinalTapify Gapless Preview!</h1>
+		<h2><div id="currTrckName">None</div>
+			 <div id="currTrckPos"></div><div id="currTrckLen"></div></h2>
+		<div align="left">
+			<table>
+				<tr>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_play")' > Play </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_stop")' > Stop </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_pause")' > Pause </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_unPause")' > Unpause </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_skipTrack")' > Next </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_prevTrack")' > Prev </a></td>
+					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_clearTracks")' > Clear </a></td>
+				</tr>
+			</table>
+		</div>
+		<table>
+			<tr>
+				<td>
+				<table>
+					<tr>
+						<td>
+						<form onsubmit="spotifySearchALL(true,true,true);return false;" >
+							<input type="text" name="searchTerm" placeholder="Search" >
+							</input>
+						</form></td>
+						<td>
+						<form onsubmit="spotifySearchALL(true,true,true);return false;" >
+							<input type="text" name="searchArtistTerm" placeholder="Artist" >
+							</input>
+						</form></td>
+						<td>
+						<form onsubmit="spotifySearchALL(true,true,true);return false;" >
+							<input type="text" name="searchAlbumTerm" placeholder="Album" >
+							</input>
+						</form></td>
+					</tr>
+				</table></td>
+			</tr>
+			<td>
+			<table>
+				<tr>
+					<td>
+					<table>
+						<tr>
+							<td>
+							<form name=spotArtistList >
+								<select name=list multiple="multiple" style="width:400px;" size=10 onclick="artistFilter();">
+									<option value=false >All artists</option>
+								</select>
+							</form></td>
+							<td>
+							<form name=spotAlbumList >
+								<select name=list multiple="multiple" style="width:400px;" size=10 onclick="albumFilter();">
+									<option name=beyonce value="">All albums</option>
+								</select>
+							</form></td>
+						</tr>
+					</table></td>
+				</tr>
+				<tr>
+					<td>
+					<form name=spotTrackList >
+						<select name=list multiple="multiple" style="width:800px;" size=20 ondblclick="sptyPlaySelected();" onkeydown="qToPlayListKey(event);">
+							<option name=beyonce value=""=>All tracks</option>
+						</select>
+					</form></td>
+				</tr>
+			</table></td>
+			<td>
+			<form name=spotPlayList >
+				<select name=list multiple="multiple" style="width:200px;" size=30>
+					<option name=spotPlaylist value="">Empty playlist</option>
+				</select>
+			</form></td>
+		</table>
+		<script></script>
+
+	</body>
