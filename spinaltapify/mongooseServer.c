@@ -7,13 +7,15 @@
 
 
 static const char requestPage[] = "A";
-
+extern int samplesPlayed;
+extern sp_track * currentPlayingtrack;
 static const char *options[] = {
   "document_root", "html",
   "listening_ports", "8081",
   "num_threads", "5",
   NULL
 };
+static char testLinkBuffer[256] = "None";
 
 struct mg_context *ctx;
 
@@ -81,8 +83,25 @@ static void *event_handler(enum mg_event event,
 	}
 	else if (!strcmp(request_info->uri,"/spty_setPlayList")){
 	//spty_setPlayList(unsigned int size, sp_track * tracks);
-	} else {
-		mg_printf(conn, "Not implemented yet");
+	} else if (!strcmp(request_info->uri,"/spty_getCurrentAndPos")){
+		if (currentPlayingtrack){
+			sp_link * splink = 0;
+			splink = sp_link_create_from_track(currentPlayingtrack, 0);
+			printf("Made it %u", __LINE__);
+			if (splink){
+			printf("Made it %u", __LINE__);
+				if (sp_link_as_string(splink, testLinkBuffer, sizeof(testLinkBuffer))){
+			printf("Made it %u", __LINE__);
+					mg_printf(conn, "%d%s", samplesPlayed, testLinkBuffer);
+					currentPlayingtrack  = 0;
+					goto finished;
+				}
+			}
+		}
+		mg_printf(conn, "%d%s", samplesPlayed, testLinkBuffer);
+	}else{
+	//	mg_printf(conn, "Not implemented yet");
+		return 0;
 	}
 	finished:
   	return processed;

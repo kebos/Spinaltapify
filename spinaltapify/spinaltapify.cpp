@@ -20,6 +20,7 @@
 
 void inputThread();
 sp_track *track;
+sp_track *currentPlayingtrack;
 audioBuffer abuf(44100, 44100);
 audioBuffer abuf2(44100, 44100);
 bool bAbuf = true;
@@ -188,7 +189,9 @@ void spty_skipTrack(){
 static void nextTrackFunc(){
 	
 	while(serviceLoopActive){
+		currentPlayingtrack = track;
 		track = NULL;
+	
 		while(track == NULL)
 		{
 			loadNextTrack.lock();
