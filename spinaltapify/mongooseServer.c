@@ -53,8 +53,9 @@ static void *event_handler(enum mg_event event,
 	spty_unPause();
 		mg_printf(conn, "Success\n");
 	}
-	else if (!strcmp(request_info->uri,"/spty_seek")){
-		spty_seek(1000);
+	else if (!strncmp(request_info->uri,"/spty_seek", 10)){
+		printf("Seeking to %u\n", atoi(request_info->uri+10));
+		spty_seek(atoi(request_info->uri+10));
 		mg_printf(conn, "Success\n");
 	}
 	else if (strstr(request_info->uri,"/spty_addTrack")){
@@ -98,7 +99,7 @@ static void *event_handler(enum mg_event event,
 				}
 			}
 		}
-		mg_printf(conn, "%d%s", samplesPlayed, testLinkBuffer);
+		mg_printf(conn, "%d%s", samplesPlayed/44100, testLinkBuffer);
 	}else{
 	//	mg_printf(conn, "Not implemented yet");
 		return 0;

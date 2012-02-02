@@ -224,6 +224,7 @@
 						document.getElementById('currTrckName').innerHTML = "None";
 					}else{
 						document.getElementById('currTrckPos').innerHTML = arrRet[1] + " / " + currentTrack.length;
+						document.getElementById('posSlider').value = (arrRet[1] / currentTrack.length) * 1000;
 						if (arrRet[2] == currentTrack.spotID){
 						}else{
 							document.getElementById('currTrckName').innerHTML = arrRet[1];
@@ -237,7 +238,7 @@
 								currentTrack.artist = detailsObj.track.artists[0].name; 
 								currentTrack.track = detailsObj.track.name;
 								currentTrack.album = detailsObj.track.album.name;
-								currentTrack.length = parseFloat(detailsObj.track.length *100000);
+								currentTrack.length = parseFloat(detailsObj.track.length );
 								document.getElementById('currTrckName').innerHTML = "" + currentTrack.track + " - " + currentTrack.artist;
 							}
 							xmlhttpPost("http://ws.spotify.com/lookup/1/.json?uri=" + arrRet[2], updateTrckDets);
@@ -303,7 +304,7 @@
 
 				} else {
 					if(uAlbum) {
-						console.log("HELLO FROM THE ALBUM" + spotSearchParameters.albumFilter);
+						//console.log("HELLO FROM THE ALBUM" + spotSearchParameters.albumFilter);
 						xmlhttpPost(spotRequestAlbum, spty_updateAlbumTrackResults);
 					}
 
@@ -322,12 +323,19 @@
 					sptyQSelected();
 				}
 			}
+			
+			function seekSong(val){
+				var position = Math.floor(val/1000.0 * (currentTrack.length)) * 1000;
+				console.log(position);
+				xmlhttpPost("http://localhost:8081/spty_seek" + position, ignoreReturn);
+			}
 
 			var intervalH = setInterval(test, 500);
 
 		</script>
 		<h1>SpinalTapify Gapless Preview!</h1>
 		<h2><div id="currTrckName">None</div>
+			<input id="posSlider" name="posSlider" type="range" min="0" max="1000" value="0" onmouseup="seekSong(this.value)"/>
 			 <div id="currTrckPos"></div><div id="currTrckLen"></div></h2>
 		<div align="left">
 			<table>
