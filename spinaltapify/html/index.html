@@ -225,7 +225,7 @@
 					}else{
 						document.getElementById('currTrckPos').innerHTML = arrRet[1] + " / " + currentTrack.length;
 						document.getElementById('posSlider').value = (arrRet[1] / currentTrack.length) * 1000;
-						if (arrRet[2] == currentTrack.spotID){
+						if (arrRet[2] == currentTrack.spotID && document.getElementById('currTrckName').innerHTML != "None"){
 						}else{
 							document.getElementById('currTrckName').innerHTML = arrRet[1];
 							currentTrack.spotID = arrRet[2];
