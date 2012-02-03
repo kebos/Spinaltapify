@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include "common.hpp"
-#include <portaudio.h>
 #include "include/appkey.c"
 
 #include <vector>
