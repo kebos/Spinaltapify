@@ -103,6 +103,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audioBuffer.cpp" />
+    <ClCompile Include="mongooseServer.c" />
+    <ClCompile Include="mongoose.c" />
     <ClCompile Include="consoleUI.cpp" />
     <ClCompile Include="corePlaylist.cpp" />
     <ClCompile Include="portAudio.cpp" />
