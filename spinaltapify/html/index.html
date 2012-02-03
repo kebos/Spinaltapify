@@ -260,9 +260,9 @@
 
 				var spotRequestArtistAlbums;
 				var spotRequestAlbum = "http://ws.spotify.com/lookup/1/.json?uri=" + spotSearchParameters.albumFilter + "&extras=trackdetail";
-				spotRequestUrlArtist += document.forms[0].searchTerm.value;
-				spotRequestUrlTrack += document.forms[0].searchTerm.value;
-				spotRequestUrlAlbum += document.forms[0].searchTerm.value;
+				spotRequestUrlArtist += document.forms[0].searchTerm.value + "*";
+				spotRequestUrlTrack += document.forms[0].searchTerm.value + "*";
+				spotRequestUrlAlbum += document.forms[0].searchTerm.value + "*";
 
 				document.forms[1].searchArtistTerm.value = spotSearchParameters.artistFilter;
 				document.forms[2].searchAlbumTerm.value = spotSearchParameters.albumFilter;
@@ -335,7 +335,7 @@
 		</script>
 		<h1>SpinalTapify Gapless Preview!</h1>
 		<h2><div id="currTrckName">None</div>
-			<input id="posSlider" name="posSlider" type="range" min="0" max="1000" value="0" onmouseup="seekSong(this.value)"/>
+			<input id="posSlider" name="posSlider" type="range" min="0" max="1000" value="0" style='width:600px' onmouseup="seekSong(this.value)"/>
 			 <div id="currTrckPos"></div><div id="currTrckLen"></div></h2>
 		<div align="left">
 			<table>

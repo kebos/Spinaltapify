@@ -66,19 +66,18 @@ static void __stdcall end_of_track(sp_session *session);
 static int __stdcall audio_data(sp_session *session, const sp_audioformat *format, const void *frames, int num_spotify_frames);
 
 static void __stdcall logged_in(sp_session *session, sp_error error){
-	DebugPC("Log in successful\n");
-	logIn.unlock();
 	if (error == SP_ERROR_OK){
 		loggedin = true;
+		DebugPC("Log in successful\n");
 	}else{
+		DebugPC("Log in failed with %u\n", error);
 		loggedin = false;
 	}
-	
-	
+	logIn.unlock();
 }
 
 static void __stdcall logged_out(sp_session *session){
-	DebugPC("Log out successful\n");
+	DebugPC("Logged out was called\n");
 	loggedin = false;
 	serviceLoopActive = false;
 	pauseTheMainLoop.try_lock();
@@ -315,14 +314,16 @@ static int initSpinalTapify(char * user, char * pass){
 
 	sp_session_login(sp, username, password, false);
 	
-	logIn.lock();
-	if (!loggedin){
-		DebugPC( "Not loggedin \n");
-	//	return 1;
-	}
 	serviceLoopActive = true;
 	gtMainThreadProcess = boost::thread(mainServiceThread);
+	printf("Waiting on login to complete\n");
+	logIn.lock();
+	printf("Hit second mutex!\n");
 	logIn.lock(); 
+	if (!loggedin){
+		DebugPC( "Login mutex was unlocked but we are not actually logged in \n");
+	//	return 1;
+	}
 	if (!loggedin){
 		DebugPC("try to close gracefully\n");
 		//sp_session_logout(sp);
