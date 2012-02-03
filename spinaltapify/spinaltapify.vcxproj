@@ -100,8 +100,6 @@
     <ClInclude Include="portAudio.hpp" />
     <ClInclude Include="spinaltapify.hpp" />
     <ClInclude Include="spotifyCommon.hpp" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audioBuffer.cpp" />
@@ -109,9 +107,6 @@
     <ClCompile Include="corePlaylist.cpp" />
     <ClCompile Include="portAudio.cpp" />
     <ClCompile Include="spinaltapify.cpp" />
-    <ClCompile Include="spotifyLogin.cpp" />
-    <ClCompile Include="spotifyPlay.cpp" />
-    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
