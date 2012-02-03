@@ -1,5 +1,9 @@
 #include "spinaltapify.hpp"
+#if defined(_WIN32)
+#include "win32/libspotify/include/libspotify/api.h"
+#else
 #include <libspotify/api.h>
+#endif
 #include <iostream>
 #include <memory.h>
 #include <boost/thread/thread.hpp>
