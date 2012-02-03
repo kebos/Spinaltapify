@@ -1,7 +1,8 @@
 //Spinal tapify library file
+#if defined(_WIN32)
+#include "win32/libspotify/include/libspotify/api.h"
+#else
 #include <libspotify/api.h>
-#if defined(_WIN32_)
-#include <boost/thread/detail/move.hpp>
 #endif
 #include <boost/thread/mutex.hpp>
 #include "compat.h"
