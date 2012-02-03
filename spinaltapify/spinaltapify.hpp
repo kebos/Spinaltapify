@@ -40,8 +40,6 @@ __declspec T_LIB_DIR unsigned int spty_currentTrack();
 
 // Playlist related functions (spinal tapify maintains one long fifo buffer which wraps around, create your own playlists if you want a playlist longer than 300)
 
-__declspec T_LIB_DIR unsigned int spty_addTrack(sp_track * track);
-
 __declspec T_LIB_DIR bool spty_addTrack(sp_track * track, unsigned int position);
 
 __declspec T_LIB_DIR bool spty_removeTrack(unsigned int position);
