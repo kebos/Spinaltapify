@@ -23,14 +23,14 @@ sp_track *currentPlayingtrack;
 audioBuffer abuf(44100, 44100);
 audioBuffer abuf2(44100, 44100);
 bool bAbuf = true;
-boost::mutex spMutexLock;
+//boost::mutex spMutexLock;
 extern PaStream *stream;
 extern unsigned int samplesPlayed;
 #define BUFFER_DEBUG_LOG
 #define LOGIN_DEBUG
 
 
-__declspec T_LIB_DIR sp_session * sp; // session object
+ sp_session * sp; // session object
 
 
 

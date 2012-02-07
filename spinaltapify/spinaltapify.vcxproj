@@ -49,7 +49,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NO_SSL</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -57,7 +57,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libspotify.lib;libboost_thread-vc100-mt-sgd-1_46_1.lib;portaudio_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libspotify.lib;libboost_thread-vc100-mt-sgd-1_46_1.lib;portaudio_x86.lib;%(AdditionalDependencies);wsock32.lib</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <PreventDllBinding>true</PreventDllBinding>
       <ImportLibrary>
@@ -103,10 +103,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audioBuffer.cpp" />
-    <ClCompile Include="mongooseServer.c" />
     <ClCompile Include="mongoose.c" />
     <ClCompile Include="consoleUI.cpp" />
     <ClCompile Include="corePlaylist.cpp" />
+    <ClCompile Include="mongooseServer.cpp" />
     <ClCompile Include="portAudio.cpp" />
     <ClCompile Include="spinaltapify.cpp" />
   </ItemGroup>

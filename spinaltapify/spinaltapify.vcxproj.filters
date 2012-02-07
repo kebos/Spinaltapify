@@ -41,9 +41,6 @@
     <ClCompile Include="portAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mongooseServer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mongoose.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="consoleUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="corePlaylist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mongooseServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

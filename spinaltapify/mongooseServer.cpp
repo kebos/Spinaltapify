@@ -1,8 +1,15 @@
+
+#include "common.hpp"
+
 #include <stdio.h>
-#include <assert.h>
-#include "mongoose.h"
-#include "spinaltapify.hpp"
+
 #include "string.h"
+#include "mongoose.h"
+
+
+
+
+
 
 
 
@@ -122,4 +129,5 @@ int stopMongoose()
 {
 	printf("Shutting down Mongoose server\n");
 	mg_stop(ctx);
+	return 0;
 }

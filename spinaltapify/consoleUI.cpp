@@ -3,7 +3,7 @@
 #include <string>
 
 boost::mutex mInputPoll;
-bool spty_addTrack(sp_track * track);
+unsigned int spty_addTrack(sp_track * track);
 
 static void print_album(sp_album *album)
 {

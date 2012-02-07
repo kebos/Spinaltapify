@@ -5,51 +5,51 @@
 #include <libspotify/api.h>
 #endif
 #include <boost/thread/mutex.hpp>
-#include "compat.h"
+//#include "compat.h"
 
-__declspec T_LIB_DIR extern sp_session * sp; // session object valid after calling initialize
-__declspec T_LIB_DIR extern boost::mutex spMutexLock;
+  extern sp_session * sp; // session object valid after calling initialize
+  //extern boost::mutex spMutexLock;
 
-__declspec T_LIB_DIR int spty_initializeSpinalTapify(int argc, char * argv[]); // [0] ignored [1] username [2] password and set argc to 3
+  int spty_initializeSpinalTapify(int, char *); // [0] ignored [1] username [2] password and set argc to 3
 
-__declspec T_LIB_DIR void spty_deInitSpinalTapify();
+  void spty_deInitSpinalTapify();
 
 // Media player related functions
 
-__declspec T_LIB_DIR void spty_prevTrack(unsigned int num);
+  void spty_prevTrack(unsigned int );
 
-__declspec T_LIB_DIR void spty_chooseTrack(unsigned int num);
+  void spty_chooseTrack(unsigned int );
 
-__declspec T_LIB_DIR void spty_skipTrack();
+  void spty_skipTrack();
 
-__declspec T_LIB_DIR void spty_stop();
+  void spty_stop();
 
-__declspec T_LIB_DIR void spty_play();
+  void spty_play();
 
-__declspec T_LIB_DIR void spty_pause();
+  void spty_pause();
 
-__declspec T_LIB_DIR void spty_unPause();
+  void spty_unPause();
 
-__declspec T_LIB_DIR void spty_resume();
+  void spty_resume();
 
-__declspec T_LIB_DIR unsigned int spty_position();
+  unsigned int spty_position();
 
-__declspec T_LIB_DIR void spty_seek(unsigned int seek);
+  void spty_seek(unsigned int );
 
-__declspec T_LIB_DIR unsigned int spty_currentTrack();
+  unsigned int spty_currentTrack();
 
 // Playlist related functions (spinal tapify maintains one long fifo buffer which wraps around, create your own playlists if you want a playlist longer than 300)
 
-__declspec T_LIB_DIR bool spty_addTrack(sp_track * track, unsigned int position);
+  unsigned int spty_addTrack(sp_track * );
 
-__declspec T_LIB_DIR bool spty_removeTrack(unsigned int position);
+  bool spty_removeTrack(unsigned int );
 
-__declspec T_LIB_DIR bool spty_removeTrack(sp_track * track);
+  bool spty_removeTrack(sp_track * );
 
-__declspec T_LIB_DIR void spty_clearTracks();
+  void spty_clearTracks();
 
-__declspec T_LIB_DIR unsigned int spty_playListSize();
+  unsigned int spty_playListSize();
 
-__declspec T_LIB_DIR sp_track ** spty_getPlayList();
+  sp_track ** spty_getPlayList();
 
-__declspec T_LIB_DIR bool spty_setPlayList(unsigned int size, sp_track * tracks);
+  bool spty_setPlayList(unsigned int , sp_track * );
