@@ -98,18 +98,20 @@ static void *event_handler(enum mg_event event,
 		if (currentPlayingtrack){
 			sp_link * splink = 0;
 			splink = sp_link_create_from_track(currentPlayingtrack, 0);
-			printf("Made it %u", __LINE__);
+			printf("Made it %u\n", __LINE__);
 			if (splink){
-			printf("Made it %u", __LINE__);
+			printf("Made it %u\n", __LINE__);
 				if (sp_link_as_string(splink, testLinkBuffer, sizeof(testLinkBuffer))){
-			printf("Made it %u", __LINE__);
+			printf("Made it %u\n", __LINE__);
 					mg_printf(conn, "%d%s", samplesPlayed, testLinkBuffer);
+					printf("%d%s\n", samplesPlayed, testLinkBuffer);
 					currentPlayingtrack  = 0;
-					goto finished;
+					//goto finished;
 				}
 			}
 		}
 		mg_printf(conn, "%d%s", samplesPlayed/44100, testLinkBuffer);
+		printf("%d%s\n", samplesPlayed/44100, testLinkBuffer);
 	}else{
 	//	mg_printf(conn, "Not implemented yet");
 		return 0;

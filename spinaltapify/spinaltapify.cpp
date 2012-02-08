@@ -29,6 +29,18 @@ extern unsigned int samplesPlayed;
 #define BUFFER_DEBUG_LOG
 #define LOGIN_DEBUG
 
+static struct playbackState{
+	bool stop;
+	bool skip;
+	bool trackReady;
+	bool trackFinished;
+	boost::mutex servicePlayback;
+	playbackState(): stop(false), skip(false), trackReady(false), trackFinished(false){
+	}
+} spty_pbs;
+
+
+void spb(void);
 
  sp_session * sp; // session object
 
@@ -156,12 +168,56 @@ static int __stdcall audio_data(sp_session *session, const sp_audioformat *forma
 	}
 	return bytesRead;
 }
+void spb(void){
+	spty_pbs.servicePlayback.unlock();
+}
 
-void nextTrackUnlock(){
-	if (loadNextTrack.try_lock()){
-		loadNextTrack.unlock();
-	}else{
-		loadNextTrack.unlock();
+
+static void nextTrackFunc(){
+	static bool currentlyPlaying = false;
+        	track = NULL;              
+		currentPlayingtrack = NULL;
+		while(serviceLoopActive){
+		spty_pbs.servicePlayback.lock();
+		if (spty_pbs.stop){
+			DebugPC("Stopped\n");
+			// stop a track
+			if (bPortAudioActive) closePortAudio();
+			if (currentlyPlaying) sp_session_player_unload(sp);		
+			currentlyPlaying = false;
+			continue;
+		}
+
+		// skip a track
+		if (spty_pbs.skip || spty_pbs.trackFinished){
+			DebugPC("Skip/finish\n");
+			if (spty_pbs.skip) {if (bPortAudioActive) closePortAudio();}
+			if (!(track = getNextTrack())) continue;
+			spty_pbs.trackFinished = false;
+		}else{
+			continue;
+		}
+		DebugPC("New track\n");
+		if (currentlyPlaying) sp_session_player_unload(sp);
+		samplesPlayed = 0;                                             
+               if (!bPortAudioActive) initPortAudio();                        
+               sp_error err = sp_session_player_load(sp, track);               
+		currentlyPlaying = true;
+		currentPlayingtrack = track;
+                                                                              
+               int retryCount = 2;                                            
+               while (SP_ERROR_OK != err && (--retryCount)){                  
+                       boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+                       DebugP("Problem: " << sp_error_message(err) << "\n");  
+                       err = sp_session_player_load(sp, track);               
+               }                                                              
+               if (SP_ERROR_OK != err) spty_skipTrack(); // Still hasn't loade
+                                                                              
+               if (spty_pbs.skip){                                               
+                       spty_pbs.skip = false;                                    
+                       bAbuf ? bAbuf = false : bAbuf = true;                  
+               }                                                              
+               sp_session_player_play(sp, true);                              
 	}
 }
 
@@ -169,58 +225,17 @@ void nextTrackUnlock(){
 static void __stdcall end_of_track(sp_session *session){
 	//Load the next track
 	DebugPC("Track finished!\n");
-	nextTrackUnlock();
+	spty_pbs.trackFinished = true;
+	spty_pbs.servicePlayback.unlock();
 }
 
 
 
 
-
-
-static bool bSkipTrack = false; // Use this to decide whether to cut between tracks or to gapless into the same buffer
 
 void spty_skipTrack(){
-	bSkipTrack= true;
-	nextTrackUnlock();
-}
-
-static void nextTrackFunc(){
-	
-	while(serviceLoopActive){
-		currentPlayingtrack = track;
-		track = NULL;
-	
-		while(track == NULL)
-		{
-			printf("Wait next track\n");
-			loadNextTrack.lock();
-			printf("Wait get track\n");
-			track = getNextTrack();
-			printf("Wait load next track\n");
-		}
-		if (bSkipTrack){
-			if (bPortAudioActive) closePortAudio();
-		}
-
-		sp_session_player_unload(sp);
-		samplesPlayed = 0;
-		if (!bPortAudioActive) initPortAudio();
-		sp_error err = sp_session_player_load(sp, track);
-
-		int retryCount = 2;
-		while (SP_ERROR_OK != err && (--retryCount)){
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-			DebugP("Problem: " << sp_error_message(err) << "\n");
-			err = sp_session_player_load(sp, track);
-		}
-		if (SP_ERROR_OK != err) spty_skipTrack(); // Still hasn't loaded
-
-		if (bSkipTrack){
-			bSkipTrack = false;
-			bAbuf ? bAbuf = false : bAbuf = true;
-		}
-		sp_session_player_play(sp, true);
-	}
+	spty_pbs.skip = true;
+	spty_pbs.servicePlayback.unlock();
 }
 
 
@@ -243,15 +258,18 @@ void spty_chooseTrack(unsigned int num){
 
 
 void spty_stop(){
-	if (bPortAudioActive) closePortAudio();
-	sp_session_player_unload(sp);
-	samplesPlayed = 0;
+	//spty_pbs.stop = true;
+	spty_pbs.servicePlayback.unlock();
+//	if (bPortAudioActive) closePortAudio();
+//	sp_session_player_unload(sp);
+//	samplesPlayed = 0;
 }
 
 void spty_play(){
 	backTrack(1);
-	spty_skipTrack();
-
+	spty_pbs.skip = true;	
+	spty_pbs.stop = false;
+	spty_pbs.servicePlayback.unlock();
 	//nextTrackUnlock();
 	//if (!bPortAudioActive) initPortAudio();
 }
@@ -285,6 +303,7 @@ static int initSpinalTapify(char * user, char * pass){
 	spconfig.application_key_size = g_appkey_size;
 	spconfig.user_agent = "spinal-tapify";
 	spconfig.callbacks = NULL;
+	spty_pbs.stop = false;
 
 	int nextTimeOut = 0;
 	sp = NULL;
@@ -330,6 +349,7 @@ static int initSpinalTapify(char * user, char * pass){
 		DebugPC("try to close gracefully\n");
 		//sp_session_logout(sp);
 		serviceLoopActive = false;
+		spb();
 		
 		gtMainThreadProcess.join();
 		pauseTheMainLoop.try_lock();

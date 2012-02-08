@@ -5,7 +5,9 @@ sp_track * gsPLTracks[300];
 unsigned int uiQTracks = 0;
 unsigned int currentTrack = 0;
 boost::mutex mWaitForTrack;
+extern void spb(void);
 
+bool serviceWaitingForTrack = true;
 
 void clearTracks()
 {
@@ -20,11 +22,7 @@ unsigned int spty_addTrack(sp_track * track){
 	DebugPC("Added a track %d tracks\n", uiQTracks+1);
 	gsPLTracks[uiQTracks] = track;
 	uiQTracks++;
-	if (mWaitForTrack.try_lock()){
-		mWaitForTrack.unlock();
-	}else{
-		mWaitForTrack.unlock();
-	}
+	spb();
 	return uiQTracks-1;
 }
 
@@ -42,22 +40,17 @@ bool backTrack(unsigned int num){
 	}
 
 
-	if (mWaitForTrack.try_lock()){
-		mWaitForTrack.unlock();
-	}else{
-		mWaitForTrack.unlock();
-	}
+	spb();
 	return true;
 }
 
 
 
 sp_track * getNextTrack(){
-	DebugPC("Waiting for next track!\n");
-	while (uiQTracks == currentTrack){
-		DebugPC("Wait here!\n");
-		mWaitForTrack.lock();
-		DebugPC("Unlocked %d of %d\n", currentTrack, uiQTracks);
+	if (uiQTracks == currentTrack){
+		serviceWaitingForTrack = true;
+		DebugPC("Waiting for new track");
+		return 0;
 	}
 	DebugPC("Playing track from playlist position %d\n", currentTrack);
 	return gsPLTracks[currentTrack++];
@@ -72,7 +65,6 @@ bool spty_removeTrack(sp_track * track){
 }
 
 void initPlayList(){
-	mWaitForTrack.lock();
 }
 
 
