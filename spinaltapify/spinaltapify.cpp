@@ -192,8 +192,11 @@ static void nextTrackFunc(){
 	
 		while(track == NULL)
 		{
+			printf("Wait next track\n");
 			loadNextTrack.lock();
+			printf("Wait get track\n");
 			track = getNextTrack();
+			printf("Wait load next track\n");
 		}
 		if (bSkipTrack){
 			if (bPortAudioActive) closePortAudio();

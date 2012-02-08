@@ -21,8 +21,8 @@ spinaltapify.o : spinaltapify.cpp
 	$(OBJBUILD) $(CFLAGS) spinaltapify.cpp 
 mongoose.o : mongoose.c
 	$(MONGOOSEBUILD) $(CFLAGS) mongoose.c
-mongooseServer.o : mongooseServer.c
-	$(OBJBUILD) $(CFLAGS) -DNOSLL  mongooseServer.c
+mongooseServer.o : mongooseServer.cpp
+	$(OBJBUILD) $(CFLAGS) -DNOSLL  mongooseServer.cpp
 	
 clean :
 	rm *.o

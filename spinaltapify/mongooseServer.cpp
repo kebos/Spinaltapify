@@ -29,6 +29,7 @@ struct mg_context *ctx;
 static void *event_handler(enum mg_event event,
                            struct mg_connection *conn,
                            const struct mg_request_info *request_info) {
+	static bool clearedTracks = false;
   	void *processed = (void *) "yes";
 	printf("Request url %s\n", request_info->uri);
 	
@@ -81,12 +82,14 @@ static void *event_handler(enum mg_event event,
         	sp_link * spl = sp_link_create_from_string(spotifyURL);
         	sp_track * spt = sp_link_as_track(spl);
 		mg_printf(conn, "Success%u\n", spty_addTrack(spt));
+		clearedTracks = false;
 	}
 	else if (!strcmp(request_info->uri,"/spty_removeTrack")){
 	//spty_removeTrack(unsigned int position);
 	}
 	else if (!strcmp(request_info->uri,"/spty_clearTracks")){
-		spty_clearTracks();
+		if (!clearedTracks) spty_clearTracks();
+		clearedTracks = true;
 		mg_printf(conn, "Success\n");
 	}
 	else if (!strcmp(request_info->uri,"/spty_setPlayList")){
