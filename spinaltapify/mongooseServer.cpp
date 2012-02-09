@@ -67,7 +67,6 @@ static void *event_handler(enum mg_event event,
 		mg_printf(conn, "Success\n");
 	}
 	else if (strstr(request_info->uri,"/spty_addTrack")){
-		unsigned int timeout = 5;
 		char spotifyURL[256] = {0};
 		char * startOfUrl = 0;
 		if (strlen(request_info->uri) > 256) {
@@ -76,7 +75,6 @@ static void *event_handler(enum mg_event event,
 		}
 		startOfUrl = request_info->uri + 14;
 		printf("request_info %s\n", request_info->uri);	
-		unsigned int currTrackLength = 0;
 		strcpy(spotifyURL, startOfUrl);
 		printf("Request url is %s\n", spotifyURL);
         	sp_link * spl = sp_link_create_from_string(spotifyURL);

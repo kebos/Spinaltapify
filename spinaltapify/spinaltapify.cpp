@@ -20,8 +20,8 @@
 void inputThread();
 sp_track *track;
 sp_track *currentPlayingtrack;
-audioBuffer abuf(44100, 44100);
-audioBuffer abuf2(44100, 44100);
+audioBuffer abuf(88200, 88200);
+audioBuffer abuf2(88200, 88200);
 bool bAbuf = true;
 //boost::mutex spMutexLock;
 extern PaStream *stream;
@@ -34,6 +34,7 @@ static struct playbackState{
 	bool skip;
 	bool trackReady;
 	bool trackFinished;
+	bool pause;
 	boost::mutex servicePlayback;
 	playbackState(): stop(false), skip(false), trackReady(false), trackFinished(false){
 	}
@@ -42,19 +43,10 @@ static struct playbackState{
 
 void spb(void);
 
- sp_session * sp; // session object
-
-
-
+sp_session * sp; // session object
 boost::mutex callingAPI; // Need to start using this mutex as spotify api is not thread safe!!
 boost::mutex pauseTheMainLoop; // We lock on this for the 'process events loop', unlocked when api asks us to call process events
 boost::mutex logIn; // We lock on this till the login call back unlocks it
-
-
-// Two mutexes to allow smooth addition of new tracks/transition to new tracks
-extern boost::mutex mWaitForTrack; // This is called by getnexttrack, causes next track to sleep until a new track appears on the playlist
-boost::mutex loadNextTrack; // Unlock this to cause the next track to be loaded
-
 
 
 sp_track * getNextTrack();
@@ -168,6 +160,8 @@ static int __stdcall audio_data(sp_session *session, const sp_audioformat *forma
 	}
 	return bytesRead;
 }
+
+
 void spb(void){
 	spty_pbs.servicePlayback.unlock();
 }
@@ -179,6 +173,14 @@ static void nextTrackFunc(){
 		currentPlayingtrack = NULL;
 		while(serviceLoopActive){
 		spty_pbs.servicePlayback.lock();
+
+		if (spty_pbs.pause){
+			if (bPortAudioActive) {closePortAudio(); DebugPC("PAUSE\n");}
+		}else{
+			if (!bPortAudioActive) {initPortAudio();DebugPC("UNPAUSE\n");}
+		}
+		
+
 		if (spty_pbs.stop){
 			DebugPC("Stopped\n");
 			// stop a track
@@ -252,34 +254,31 @@ void spty_prevTrack(unsigned int num){
 void spty_chooseTrack(unsigned int num){
 	extern unsigned int currentTrack;	
 	currentTrack = num;
-	// Last track issue
 	spty_skipTrack();
 }
 
 
 void spty_stop(){
-	//spty_pbs.stop = true;
+	if (!spty_pbs.stop) backTrack(1);
+	spty_pbs.stop = true;
 	spty_pbs.servicePlayback.unlock();
-//	if (bPortAudioActive) closePortAudio();
-//	sp_session_player_unload(sp);
-//	samplesPlayed = 0;
 }
 
 void spty_play(){
-	backTrack(1);
 	spty_pbs.skip = true;	
 	spty_pbs.stop = false;
+	spty_pbs.pause = false;
 	spty_pbs.servicePlayback.unlock();
-	//nextTrackUnlock();
-	//if (!bPortAudioActive) initPortAudio();
 }
 
 void spty_pause(){
-	if (bPortAudioActive) closePortAudio();
+	spty_pbs.pause = true;
+	spb();
 }
 
 void spty_unPause(){
-	if (!bPortAudioActive) initPortAudio();
+	spty_pbs.pause = false;
+	spb();
 }
 
 void spty_seek(unsigned int seek){
@@ -305,7 +304,6 @@ static int initSpinalTapify(char * user, char * pass){
 	spconfig.callbacks = NULL;
 	spty_pbs.stop = false;
 
-	int nextTimeOut = 0;
 	sp = NULL;
 	sp_error err;
 
@@ -384,7 +382,7 @@ unsigned int spty_currentTrack(){
 void spty_clearTracks(){
 	clearTracks();
 	spty_skipTrack();
-	spty_stop();
+	//spty_stop();
 }
 
 
@@ -399,9 +397,9 @@ int spty_initializeSpinalTapify(int argc, char * argv[]){
 
 	if (!initSpinalTapify(argv[1], argv[2])){
 		DebugPC("Logged in\n");
-		if (initPortAudio()){
+		/*if (initPortAudio()){
 			return 1;
-		}
+		}*/
 	return 0;
 	}else{
 		DebugPC("Failed to login\n");

@@ -4,7 +4,6 @@
 sp_track * gsPLTracks[300];
 unsigned int uiQTracks = 0;
 unsigned int currentTrack = 0;
-boost::mutex mWaitForTrack;
 extern void spb(void);
 
 bool serviceWaitingForTrack = true;
@@ -22,7 +21,7 @@ unsigned int spty_addTrack(sp_track * track){
 	DebugPC("Added a track %d tracks\n", uiQTracks+1);
 	gsPLTracks[uiQTracks] = track;
 	uiQTracks++;
-	spb();
+	if (serviceWaitingForTrack) {serviceWaitingForTrack = false; spb();}
 	return uiQTracks-1;
 }
 
@@ -40,7 +39,6 @@ bool backTrack(unsigned int num){
 	}
 
 
-	spb();
 	return true;
 }
 

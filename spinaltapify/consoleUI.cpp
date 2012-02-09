@@ -91,7 +91,6 @@ void inputThread(){
 		}else if (strSearchTerm == "play"){
 			spty_play();
 		}else if (strSearchTerm == "seek"){
-			unsigned int seekPos = 0;
 			getline(std::cin, strSearchTerm);
 			int choice = 0;
 			std::stringstream myStream(strSearchTerm);

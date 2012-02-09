@@ -1,4 +1,8 @@
 //Spinal tapify library file
+
+
+#ifndef __SPTY_MAIN_HEADER__
+#define __SPTY_MAIN_HEADER__
 #if defined(_WIN32)
 #include "win32/libspotify/include/libspotify/api.h"
 #else
@@ -6,6 +10,14 @@
 #endif
 #include <boost/thread/mutex.hpp>
 //#include "compat.h"
+
+struct _spty_track_info {
+	sp_link * link;
+	sp_track * track;
+	char strLink[40];
+};
+
+typedef struct _spty_track_info spty_track;
 
   extern sp_session * sp; // session object valid after calling initialize
   //extern boost::mutex spMutexLock;
@@ -53,3 +65,4 @@
   sp_track ** spty_getPlayList();
 
   bool spty_setPlayList(unsigned int , sp_track * );
+#endif

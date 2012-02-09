@@ -59,12 +59,22 @@
 			function ignoreReturn() {
 				return false;
 			}
+			
+			function clearPlaylistLocal(){
+				document.spotPlayList.list.options.length = 0;
+				PlayListCount = 0;
+			}
 
 			function httpPostIgnore(strUrl) {
 				xmlhttpPost(strUrl, ignoreReturn);
 			}
 
 			function clearAndPlay(target) {
+				clearPlaylistLocal();
+				
+				var strDetails = document.spotTrackList.list.options[document.spotTrackList.list.selectedIndex].text;
+				document.spotPlayList.list.options[PlayListCount++] = new Option(strDetails, 1, true, false);
+				
 				function playNext() {
 					var trackQ = target;
 					sptyAdd(trackQ);
@@ -346,7 +356,7 @@
 					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_unPause")' > Unpause </a></td>
 					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_skipTrack")' > Next </a></td>
 					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_prevTrack")' > Prev </a></td>
-					<td><a onclick='httpPostIgnore("http://localhost:8081/spty_clearTracks")' > Clear </a></td>
+					<td><a onclick='clearPlaylistLocal(); httpPostIgnore("http://localhost:8081/spty_clearTracks")' > Clear </a></td>
 				</tr>
 			</table>
 		</div>
